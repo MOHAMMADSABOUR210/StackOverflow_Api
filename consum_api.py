@@ -1,14 +1,14 @@
+from flask import Flask,request,jsonify
 import requests
-import json
+
+app = Flask(__name__)
 
 
-response = requests.get('https://api.stackexchange.com/2.3/questions?order=desc&sort=activity&site=stackoverflow')
+BASE_URL = "https://api.stackexchange.com/2.3"
 
-for data in response.json()['items']:
-    if data['answer_count'] == 0:
-        print(data['title'])
-        print(data['link'])
-    else:
-        print("skipped")
-    print()
-        
+@app.route('/search')
+def search_question():
+    query = request.args.get('query')
+    url = f"{BASE_URL}/search?order=desc&sort=activity&intitle={query}&site=stackoverflow"
+    res = requests.get(url)
+    return jsonify(res.json())
