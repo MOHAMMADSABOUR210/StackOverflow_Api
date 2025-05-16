@@ -49,3 +49,13 @@ def add_drink():
     db.session.add(drink)
     db.session.commit()
     return {'id': drink.id}
+
+
+@app.route('/drinks/<id>', methods=['DELETE'])
+def delete_drink(id):
+    drink = Drink.query.get(id)
+    if drink is None:
+        return {"error" : "not found"}
+    db.session.delete(drink)
+    db.session.commit()
+    return {"massege" : "drink is deleted "}
