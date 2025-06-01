@@ -1,47 +1,8 @@
-from flask import  request, jsonify
-from models import Question ,SearchQuestion , Tags, app, db
-
-import requests
-# 
-from flask import Flask
+from flask import  request, jsonify, Flask
+from models import Question ,SearchQuestion , Tags, db, app
 from flask_sqlalchemy import SQLAlchemy
 
-app = Flask(__name__)
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///questions.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-db = SQLAlchemy(app)
-
-class Question(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    question_id = db.Column(db.Integer, unique=True, nullable=False)
-    title = db.Column(db.String, nullable=False)
-    link = db.Column(db.String, nullable=False)
-    tags = db.Column(db.String)
-    is_answered = db.Column(db.Boolean)
-    score = db.Column(db.Integer)
-    creation_date = db.Column(db.Integer)
-    body = db.Column(db.Text)
-
-class Tags(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    tags = db.Column(db.String, nullable=False)
-    title = db.Column(db.String, nullable=False)
-    link = db.Column(db.String, nullable=False)
-    owner = db.Column(db.String, nullable=False)
-    is_answered = db.Column(db.Boolean)
-    view_count = db.Column(db.Integer)
-    answer_count = db.Column(db.Integer)
-    score = db.Column(db.Integer)
-
-class SearchQuestion(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String, nullable=False)
-    link = db.Column(db.String, nullable=False)
-    is_answered = db.Column(db.Boolean)
-
-
+import requests
 # 
 
 BASE_URL = "https://api.stackexchange.com/2.3"
@@ -49,8 +10,8 @@ BASE_URL = "https://api.stackexchange.com/2.3"
 @app.route('/search')
 def search_question():
     query = request.args.get('query')
-    save_db = request.args.get('save_db', 'false').lower() == 'true'
-
+    save_db = request.args.get('save', 'false').lower() == 'true'
+    print(save_db)
     if not query:
         return jsonify({'error': 'Missing "query" parameter'}), 400
 
@@ -79,7 +40,7 @@ def search_question():
                                                link=q['link'], 
                                                is_answered=q['is_answered'])
                 db.session.add(question_obj)
-
+                print(question_obj)
 
         if save_db:
             db.session.commit()
@@ -97,8 +58,8 @@ def filter_by_tag(tag):
     url = f"{BASE_URL}/questions?order=desc&sort=activity&tagged={tag}&site=stackoverflow"
     res = requests.get(url)
 
-    save_tag = request.args.get('save_tag', 'false').lower() == 'true'
-    
+    save_tag = request.args.get('save', 'false').lower() == 'true'
+    print(save_tag)
     data = res.json()
     items = data['items']
 
@@ -132,6 +93,7 @@ def filter_by_tag(tag):
                 score=item.get('score')
             )
             db.session.add(tag_entry)
+            print(tag_entry)
         db.session.commit()
 
         return jsonify({'message': 'Tags saved to database', 'total_questions': len(processed_items)})
@@ -182,6 +144,7 @@ def get_questions_by_tag(tag):
                 body=q['body']
             )
             db.session.add(question)
+            print(question)
         db.session.commit() 
 
         return jsonify({'message': 'Questions saved to database', 'total_saved': len(details)})
