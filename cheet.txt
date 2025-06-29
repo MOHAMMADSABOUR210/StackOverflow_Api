@@ -1,9 +1,0 @@
-pip freeze > requirements.txt
-
-
-touch ---> linux
-type nul > application.py
-
-
-export ---> linux
-set FLASK_APP=application.py

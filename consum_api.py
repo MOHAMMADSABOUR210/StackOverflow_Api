@@ -1,6 +1,5 @@
-from flask import  request, jsonify, Flask
+from flask import  request, jsonify
 from models import Question ,SearchQuestion , Tags, db, app
-from flask_sqlalchemy import SQLAlchemy
 
 import requests
 # 
